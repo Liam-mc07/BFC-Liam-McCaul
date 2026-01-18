@@ -15,8 +15,6 @@ from tkinter import messagebox # Required for taking username and password input
 CSV_PATH = "improved_inventory.csv"
 COLUMNS = ["itemId", "itemName", "quantity"]
 
-root = tk.Tk()
-root.title("Inventory Tracker")
 
 
 
@@ -33,7 +31,7 @@ def AppendRow(row):
     with open(CSV_PATH, "a", newline="", encoding="utf-8") as f: # opens csv file from end
         writer = csv.DictWriter(f, fieldnames = COLUMNS) # creates a writer to write to csv
 
-def ValidateLogin():
+def ValidateLogin(username, pw):
     userId = username.get()
     password = pw.get()
 
@@ -42,8 +40,9 @@ def ValidateLogin():
         messagebox.showinfo("Login Successful", "Admin access approved")
     else :
         messagebox.showerror("Login Failed", "Invalid userID or password")
+        
 
-
+ 
 
 def StartUp() : 
     # Main window creation
@@ -53,11 +52,19 @@ def StartUp() :
     # Creation of username and password box for entry
     usernameLabel = tk.Label(main, text="Enter UserId : ")
     usernameLabel.pack()
+    username = tk.Entry(main)
+    username.pack()
+
     passwordLabel = tk.Label(main, text="Enter Password : ")
     passwordLabel.pack()
+    pw = tk.Entry(main)
+    pw.pack()
+
+    # Gets user input
+    
 
     # Creation of button to verify login info
-    confirmButton = tk.Button(main, text = "Confirm", command = ValidateLogin)
+    confirmButton = tk.Button(main, text = "Confirm", command = lambda: ValidateLogin(username, pw))
     confirmButton.pack()
 
     # Starts the TKinter main loop
