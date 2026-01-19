@@ -81,8 +81,11 @@ def AddUserLog(username):
     CSVChecker.LogCSVReady()
     with open(LOG_PATH, "a", newline ="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames = LCOLUMNS)
-        print("username")
-        writer.writerow(username, datetime.now())
+        row = {
+            "Username"      : username,
+            "Date accessed" : datetime.now()
+            }
+        writer.writerow(row)
 
 def AddItem(row):
     # Adds single row without overwriting file
