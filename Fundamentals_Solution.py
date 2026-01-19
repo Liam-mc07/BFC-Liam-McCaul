@@ -81,6 +81,7 @@ class MainWindow():
             
         else :
             messagebox.showerror("Login Failed", "Invalid userID or password")
+            frame.destroy()
             MainWindow.Login(root)
 
     @staticmethod
