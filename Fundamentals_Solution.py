@@ -22,6 +22,7 @@ LCOLUMNS = ["Username", "Date accessed"]
 
 class FileManagement:
 
+    @staticmethod
     def AddUserLog(username):
         # Adds username and date accessed to logbook csv
         CSVChecker.LogCSVReady()
@@ -33,6 +34,7 @@ class FileManagement:
                 }
             writer.writerow(row)
 
+    @staticmethod
     def AddItemToCSV(row):
         # Adds single row without overwriting file
         CSVChecker.ItemsCSVReady()
@@ -45,13 +47,14 @@ class FileManagement:
 
 class CSVChecker():
 
+    @staticmethod
     def LogCSVReady():
         # Create csv if doesnt exist or is empty
         if not os.path.exists(LOG_PATH) or os.path.getsize(LOG_PATH) == 0 :
             with open(LOG_PATH, "w", newline = "", encoding = "utf-8") as f:
                 csv.writer(f).writerow(LCOLUMNS)
 
-
+    @staticmethod
     def ItemsCSVReady():
         # Create csv if doesnt exist or is empty
         if not os.path.exists(CSV_PATH) or os.path.getsize(CSV_PATH) == 0 :
@@ -64,6 +67,7 @@ class CSVChecker():
 
 class MainWindow():
 
+    @staticmethod
     def ValidateLogin(username, pw, frame, root):
         userId = username.get()
         password = pw.get()
@@ -79,14 +83,19 @@ class MainWindow():
             messagebox.showerror("Login Failed", "Invalid userID or password")
             MainWindow.Login(root)
 
+    @staticmethod
     def AddItem():
         print("Hello World")
 
+    @staticmethod
     def InvManagement(root):
-            menubar = tk.Menu(root)
+            menubar = tk.Menu(root) # Creates a menu bar to navigate actions
+
             root.config(menu=menubar)
             addButton = tk.Button(menubar, text="ADD", command= lambda: MainWindow.AddItem())
+            addButton.pack()
             
+    @staticmethod        
     def Login(root):
         
         frame = tk.Frame(root)
@@ -112,7 +121,7 @@ class MainWindow():
 
 
         
-
+    @staticmethod
     def StartUp() : 
         # Creation of main window
         root = tk.Tk()
