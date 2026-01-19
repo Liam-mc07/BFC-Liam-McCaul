@@ -10,7 +10,8 @@
 import csv, os # Allows csv file to be used and brings in my local OS
 from datetime import datetime
 import tkinter as tk # Library to create GUI
-from tkinter import messagebox # Required for taking username and password input
+from tkinter import * # Imports all required packages from tkinter
+from tkinter import messagebox
 
 CSV_PATH = "improved_inventory.csv"
 LOG_PATH = "userlog.csv"
@@ -19,7 +20,31 @@ LCOLUMNS = ["Username", "Date accessed"]
 
 
 
+class FileManagement:
+
+    def AddUserLog(username):
+        # Adds username and date accessed to logbook csv
+        CSVChecker.LogCSVReady()
+        with open(LOG_PATH, "a", newline ="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames = LCOLUMNS)
+            row = {
+                "Username"      : username,
+                "Date accessed" : datetime.now()
+                }
+            writer.writerow(row)
+
+    def AddItemToCSV(row):
+        # Adds single row without overwriting file
+        CSVChecker.ItemsCSVReady()
+        with open(CSV_PATH, "a", newline="", encoding="utf-8") as f: # opens csv file from end
+            writer = csv.DictWriter(f, fieldnames = ICOLUMNS) # creates a writer to write to csv
+            writer.writerow(row)
+
+
+
+
 class CSVChecker():
+
     def LogCSVReady():
         # Create csv if doesnt exist or is empty
         if not os.path.exists(LOG_PATH) or os.path.getsize(LOG_PATH) == 0 :
@@ -35,9 +60,11 @@ class CSVChecker():
 
 
 
-class LoginPage():
 
-    def ValidateLogin(username, pw):
+
+class MainWindow():
+
+    def ValidateLogin(username, pw, frame, root):
         userId = username.get()
         password = pw.get()
 
@@ -45,61 +72,66 @@ class LoginPage():
         if userId.lower() == "admin" and password == "4321" :
             messagebox.showinfo("Login Successful", "Admin access approved")
             CSVChecker.LogCSVReady()
-            AddUserLog(username=userId)
+            FileManagement.AddUserLog(username=userId) # Logs user and when they accessed
+            frame.destroy() # Destroys login input stage when valid input entered
             
         else :
             messagebox.showerror("Login Failed", "Invalid userID or password")
-            #exit() # Exits program
+            MainWindow.Login(root)
+
+    def AddItem():
+        print("Hello World")
+
+    def InvManagement(root):
+            menubar = tk.Menu(root)
+            root.config(menu=menubar)
+            addButton = tk.Button(menubar, text="ADD", command= lambda: MainWindow.AddItem())
             
-    def Login():
-        # Main window creation
-        main = tk.Tk()
-        main.title("Login")
-        main.geometry("700x400")
+    def Login(root):
+        
+        frame = tk.Frame(root)
+        frame.pack()
 
         # Creation of username and password box for entry
-        usernameLabel = tk.Label(main, text="Enter UserId : ")
+        usernameLabel = tk.Label(frame, text="Enter UserId : ")
         usernameLabel.pack()
-        username = tk.Entry(main)
+        username = tk.Entry(frame)
         username.pack()
 
-        passwordLabel = tk.Label(main, text="Enter Password : ")
+        passwordLabel = tk.Label(frame, text="Enter Password : ")
         passwordLabel.pack()
-        pw = tk.Entry(main, show = "*")
+        pw = tk.Entry(frame, show = "*")
         pw.pack()
 
         # Creation of button to verify login info
-        confirmButton = tk.Button(main, text = "Confirm", command = lambda:  LoginPage.ValidateLogin(username, pw))
+        confirmButton = tk.Button(frame, text = "Confirm", command = lambda:  MainWindow.ValidateLogin(username, pw, frame, root))
         confirmButton.pack()
+        
+        
 
-        # Starts the TKinter main loop
-        main.mainloop()
+
+
+        
+
+    def StartUp() : 
+        # Creation of main window
+        root = tk.Tk()
+        root.title("Inventory")
+        root.geometry("700x400") # Resizes window
+
+        MainWindow.Login(root) # Prompts user to log in
+        MainWindow.InvManagement(root) # Continues into the main portion of the program
+        root.mainloop() # Starts the TKinter main loop
+
+        print("Finished")
         
     
-def AddUserLog(username):
-    # Adds username and date accessed to logbook csv
-    CSVChecker.LogCSVReady()
-    with open(LOG_PATH, "a", newline ="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames = LCOLUMNS)
-        row = {
-            "Username"      : username,
-            "Date accessed" : datetime.now()
-            }
-        writer.writerow(row)
-
-def AddItem(row):
-    # Adds single row without overwriting file
-    CSVChecker.ItemsCSVReady()
-    with open(CSV_PATH, "a", newline="", encoding="utf-8") as f: # opens csv file from end
-        writer = csv.DictWriter(f, fieldnames = ICOLUMNS) # creates a writer to write to csv
-        writer.writerow(row)    
-
-def StartUp() : 
-    LoginPage.Login()
-    print("Finished")
+    
 
 
 
-StartUp()
+
+
+MainWindow.StartUp()
 
 
