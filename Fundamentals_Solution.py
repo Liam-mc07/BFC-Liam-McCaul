@@ -11,7 +11,8 @@ import csv, os # Allows csv file to be used and brings in my local OS
 from datetime import datetime
 import tkinter as tk # Library to create GUI
 from tkinter import * # Imports all required packages from tkinter
-from tkinter import messagebox
+from tkinter import messagebox # Import needed to output approved/error window
+from tkinter import ttk # Import needed to use data tree to display data
 
 CSV_PATH = "improved_inventory.csv"
 LOG_PATH = "userlog.csv"
@@ -77,7 +78,10 @@ class MainWindow():
             messagebox.showinfo("Login Successful", "Admin access approved")
             CSVChecker.LogCSVReady()
             FileManagement.AddUserLog(username=userId) # Logs user and when they accessed
+
             frame.destroy() # Destroys login input stage when valid input entered
+
+            MainWindow.InvManagement(root) # Continues into the main portion of the program
             
         else :
             messagebox.showerror("Login Failed", "Invalid userID or password")
@@ -88,13 +92,30 @@ class MainWindow():
     def AddItem():
         print("Hello World")
 
+
+    @staticmethod
+    def ItemTable(root, parent, columns):
+        
+        table = ttk.Treeview(parent, columns=columns, show="headings")
+
+        for col in columns:
+            table.heading(col, text=col.upper()) # Displays each column header for table
+            table.column(col, width=150, anchor="center") # Formats the columns for table
+
+        table.pack(fill="both", expand=True)
+        return table
+    
+
     @staticmethod
     def InvManagement(root):
-            menubar = tk.Menu(root) # Creates a menu bar to navigate actions
+            bottomFrame = tk.Frame(root, bg = "white")
+            bottomFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6) # Formats the frame to take up 5/6 of the root window
 
-            root.config(menu=menubar)
-            addButton = tk.Button(menubar, text="ADD", command= lambda: MainWindow.AddItem())
-            addButton.pack()
+            table = MainWindow.ItemTable(root, bottomFrame, ICOLUMNS) # Creates the table inside frame
+            
+            # EXAMPLE TO INSERT ROW
+            table.insert("", "end", values=["id1", "item1", "1"])
+
             
     @staticmethod        
     def Login(root):
@@ -130,7 +151,7 @@ class MainWindow():
         root.geometry("700x400") # Resizes window
 
         MainWindow.Login(root) # Prompts user to log in
-        MainWindow.InvManagement(root) # Continues into the main portion of the program
+
         root.mainloop() # Starts the TKinter main loop
 
         print("Finished")
