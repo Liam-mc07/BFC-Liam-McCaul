@@ -43,6 +43,16 @@ class FileManagement:
             writer = csv.DictWriter(f, fieldnames = ICOLUMNS) # creates a writer to write to csv
             writer.writerow(row)
 
+    @staticmethod
+    def LoadItems():
+        CSVChecker.ItemsCSVReady()
+
+        items = []
+        with open(CSV_PATH, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                items.append(row)
+        return items
 
 
 
@@ -64,25 +74,102 @@ class CSVChecker():
 
 class Operations():
     
+    table      = None # Shared reference so all methods can access
+    root       = None
+    tableFrame = None
+
     @staticmethod
     def AddItem():
-        print()
+        if Operations.tableFrame:
+            Operations.tableFrame.place_forget()  # Hides the table frame before add frame created
+        
+        addFrame = tk.Frame(Operations.root)
+        addFrame.place(relx=0, rely= 1/6, relwidth=1, relheight=5/6)
+
+        tk.Label(addFrame, text="ItemID : ").pack(pady=5)
+        itemIdin = tk.Entry(addFrame)
+        itemIdin.pack()
+
+        tk.Label(addFrame, text="Item Name").pack(pady=5)
+        itemNamein = tk.Entry(addFrame)
+        itemNamein.pack()
+
+        tk.Label(addFrame, text="Quantity").pack(pady=5)
+        quantityin = tk.Entry(addFrame)
+        quantityin.pack()
+
+        def Confirm():
+            itemId   = itemIdin.get()
+            itemName = itemNamein.get()
+            quantity = quantityin.get()
+
+            if not itemId or not itemName or not quantity.isdigit():
+                messagebox.showerror("Error", "Please enter valid values.")
+                return
+            FileManagement.AddItemToCSV({
+                "itemId"  : itemId,
+                "itemName": itemName,
+                "quantity": quantity
+            })
+
+            Operations.table.insert("", "end", values=[itemId, itemName, quantity])
+            addFrame.destroy()
+            Operations.tableFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6)
+
+        tk.Button(addFrame, text="Enter", command=Confirm).pack(pady=20)
 
     @staticmethod
     def RemoveItem():
-        print()
+        if Operations.tableFrame:
+            Operations.tableFrame.place_forget()  # Hides the table frame before add frame created
+        
+        removeFrame = tk.Frame(Operations.root)
+        removeFrame.place(relx=0, rely= 1/6, relwidth=1, relheight=5/6)
+
+        tk.Label(removeFrame, text="ItemID : ").pack(pady=5)
+        itemIdin = tk.Entry(removeFrame)
+        itemIdin.pack()
+
+
+        def Confirm():
+            itemId   = itemIdin.get()
+
+            if not itemId:
+                messagebox.showerror("Error", "Please enter valid values.")
+                return
+            
+
+            Operations.table.insert("", "end", values=[itemId, itemName, quantity])
+            removeFrame.destroy()
+            Operations.tableFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6)
+
+        tk.Button(removeFrame, text="Enter", command=Confirm).pack(pady=20)
 
     @staticmethod
-    def IncrementItem():
-        print()
-
-    @staticmethod
-    def DecrementItem():
+    def AlterQuantity():
         print()
 
     @staticmethod
     def ClearTable():
         print()
+   
+
+    @staticmethod
+    def InvSetup(root):
+            bottomFrame = tk.Frame(root, bg = "white")
+            bottomFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6) # Formats the frame to take up 5/6 of the root window
+            
+            Operations.tableFrame = bottomFrame # Makes variable accessible to Operations class
+            Operations.root       = root
+            Operations.table      = MainWindow.ItemTable(root, bottomFrame, ICOLUMNS) # Creates the table inside frame
+            
+            items = FileManagement.LoadItems()
+            for row in items:
+                Operations.table.insert("", "end", values=[
+                    row["itemId"],
+                    row["itemName"],
+                    row["quantity"]
+                ])
 
 
 
@@ -101,13 +188,13 @@ class MainWindow():
 
             frame.destroy() # Destroys login input stage when valid input entered
 
-            MainWindow.InvSetup(root) # Continues into the main portion of the program
+            Operations.InvSetup(root) # Sets up main body of the program
+            MainWindow.NavBarSetup(root) # Creates the navigation bar
             
         else :
             messagebox.showerror("Login Failed", "Invalid userID or password")
             frame.destroy()
             MainWindow.Login(root)
-
 
 
     @staticmethod
@@ -121,27 +208,24 @@ class MainWindow():
 
         table.pack(fill="both", expand=True)
         return table
-    
 
-    @staticmethod
-    def InvSetup(root):
-            bottomFrame = tk.Frame(root, bg = "white")
-            bottomFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6) # Formats the frame to take up 5/6 of the root window
 
-            table = MainWindow.ItemTable(root, bottomFrame, ICOLUMNS) # Creates the table inside frame
-            
-            # EXAMPLE TO INSERT ROW
-            table.insert("", "end", values=["id1", "item1", "1"])
 
 
     @staticmethod
     def NavBarSetup(root):
 
             topFrame = tk.Frame(root, bg = "gray")
-            topFrame.place(relx=0, rely=5/6, relwidth=1, relheight=1/6)
+            topFrame.place(relx=0, rely=0, relwidth=1, relheight=1/6)
             
-            addButton    = tk.Button(topFrame, text="ADD", command=Operations.AddItem())
-            removeButton = tk.Button(topFrame, text="REMOVE", command=Operations.RemoveItem())
+            addButton    = tk.Button(topFrame, text="ADD", command=Operations.AddItem) # Creates button and passes function without calling it
+            removeButton = tk.Button(topFrame, text="REMOVE", command=Operations.RemoveItem)
+            quantityButton = tk.Button(topFrame, text="CHANGE QUANTITY", command=Operations.AlterQuantity)
+
+            addButton.pack(side="left", padx=10,pady=10)
+            removeButton.pack(side="left", padx=10,pady=10)
+            quantityButton.pack(side="left", padx=10,pady=10)
+            
 
             
     @staticmethod        
