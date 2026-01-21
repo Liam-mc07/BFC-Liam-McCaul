@@ -44,6 +44,27 @@ class FileManagement:
             writer.writerow(row)
 
     @staticmethod
+    def RemoveItemFromCSV(itemId):
+        CSVChecker.ItemsCSVReady()
+
+        rows = [] # New variable to store all rows excluding that with target itemId
+
+        # Saves all rows in file to rows variable other than target itemId
+        with open(CSV_PATH, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row["itemId"] != itemId:
+                    rows.append(row)
+        
+        # Writes new rows variable to file
+        with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=ICOLUMNS)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        
+
+    @staticmethod
     def LoadItems():
         CSVChecker.ItemsCSVReady()
 
@@ -120,30 +141,24 @@ class Operations():
 
     @staticmethod
     def RemoveItem():
-        if Operations.tableFrame:
-            Operations.tableFrame.place_forget()  # Hides the table frame before add frame created
         
-        removeFrame = tk.Frame(Operations.root)
-        removeFrame.place(relx=0, rely= 1/6, relwidth=1, relheight=5/6)
+        table = Operations.table
 
-        tk.Label(removeFrame, text="ItemID : ").pack(pady=5)
-        itemIdin = tk.Entry(removeFrame)
-        itemIdin.pack()
+        selectedItem = table.selection()
+        if not selectedItem: # Errors if user doesnt select an item
+            messagebox.showerror("Error", "No item selected to remove")
+            return
+        item = table.item(selectedItem[0], "values") # Stores selected item from table and it's associated values
+        itemId = item[0]
 
+        confirm = messagebox.askyesno("Confirm Delete", f"Do you want to remove item '{itemId}'?") # Asks user a yes or no question to remove selected item
+        if not confirm: # Does nothing if the user says no
+            return
+        
+        table.delete(selectedItem[0]) # Deletes item from table
 
-        def Confirm():
-            itemId   = itemIdin.get()
+        FileManagement.RemoveItemFromCSV(itemId) # Removes selected item from csv
 
-            if not itemId:
-                messagebox.showerror("Error", "Please enter valid values.")
-                return
-            
-
-            Operations.table.insert("", "end", values=[itemId, itemName, quantity])
-            removeFrame.destroy()
-            Operations.tableFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6)
-
-        tk.Button(removeFrame, text="Enter", command=Confirm).pack(pady=20)
 
     @staticmethod
     def AlterQuantity():
