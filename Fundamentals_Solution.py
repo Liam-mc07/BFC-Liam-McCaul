@@ -153,8 +153,8 @@ class Operations():
             itemName = itemNamein.get()
             quantity = quantityin.get()
 
-            if not itemId or not itemName or not quantity.isdigit():
-                messagebox.showerror("Error", "Please enter valid values.")
+            if not itemId or not itemName or not quantity.isdigit() or int(quantity) <= 0:
+                messagebox.showerror("Error", "Please enter valid integer values.")
                 return
             if int(quantity) < 5:
                 messagebox.showerror("Warning", "Item stock low, order more soon.")
