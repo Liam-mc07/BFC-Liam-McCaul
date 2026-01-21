@@ -10,7 +10,6 @@
 import csv, os # Allows csv file to be used and brings in my local OS
 from datetime import datetime
 import tkinter as tk # Library to create GUI
-from tkinter import * # Imports all required packages from tkinter
 from tkinter import messagebox # Import needed to output approved/error window
 from tkinter import ttk # Import needed to use data tree to display data
 
@@ -62,7 +61,14 @@ class FileManagement:
             writer.writeheader()
             writer.writerows(rows)
 
+    @staticmethod
+    def ClearItemsCSV():
         
+        rows = []
+        with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=ICOLUMNS)
+            writer.writeheader()
+            writer.writerows(rows)
 
     @staticmethod
     def LoadItems():
@@ -74,7 +80,9 @@ class FileManagement:
             for row in reader:
                 items.append(row)
         return items
-
+    
+    
+        
 
 
 class CSVChecker():
@@ -92,6 +100,8 @@ class CSVChecker():
         if not os.path.exists(CSV_PATH) or os.path.getsize(CSV_PATH) == 0 :
             with open(CSV_PATH, "w", newline = "", encoding = "utf-8") as f:
                 csv.writer(f).writerow(ICOLUMNS)
+    
+    
 
 class Operations():
     
@@ -127,6 +137,9 @@ class Operations():
             if not itemId or not itemName or not quantity.isdigit():
                 messagebox.showerror("Error", "Please enter valid values.")
                 return
+            if int(quantity) < 5:
+                messagebox.showerror("Warning", "Item stock low, order more soon.")
+
             FileManagement.AddItemToCSV({
                 "itemId"  : itemId,
                 "itemName": itemName,
@@ -162,11 +175,21 @@ class Operations():
 
     @staticmethod
     def AlterQuantity():
-        print()
+        
+        table = Operations.table
+
+        
+
 
     @staticmethod
     def ClearTable():
-        print()
+        
+        for row_id in Operations.table.get_children(): # Iterates through each item in table
+            Operations.table.delete(row_id)
+
+        FileManagement.ClearItemsCSV()
+        
+
    
 
     @staticmethod
@@ -233,13 +256,15 @@ class MainWindow():
             topFrame = tk.Frame(root, bg = "gray")
             topFrame.place(relx=0, rely=0, relwidth=1, relheight=1/6)
             
-            addButton    = tk.Button(topFrame, text="ADD", command=Operations.AddItem) # Creates button and passes function without calling it
-            removeButton = tk.Button(topFrame, text="REMOVE", command=Operations.RemoveItem)
+            addButton      = tk.Button(topFrame, text="ADD", command=Operations.AddItem) # Creates button and passes function without calling it
+            removeButton   = tk.Button(topFrame, text="REMOVE", command=Operations.RemoveItem)
+            clearButton    = tk.Button(topFrame, text="CLEAR", command=Operations.ClearTable)
             quantityButton = tk.Button(topFrame, text="CHANGE QUANTITY", command=Operations.AlterQuantity)
 
-            addButton.pack(side="left", padx=10,pady=10)
-            removeButton.pack(side="left", padx=10,pady=10)
-            quantityButton.pack(side="left", padx=10,pady=10)
+            addButton.pack     (side="left", padx=10, pady=10) # Makes the buttons sit next to eachother from the left
+            removeButton.pack  (side="left", padx=10, pady=10)
+            clearButton.pack   (side="left", padx=10, pady=10)
+            quantityButton.pack(side="left", padx=10, pady=10)
             
 
             
