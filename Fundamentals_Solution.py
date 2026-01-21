@@ -62,7 +62,27 @@ class CSVChecker():
             with open(CSV_PATH, "w", newline = "", encoding = "utf-8") as f:
                 csv.writer(f).writerow(ICOLUMNS)
 
+class Operations():
+    
+    @staticmethod
+    def AddItem():
+        print()
 
+    @staticmethod
+    def RemoveItem():
+        print()
+
+    @staticmethod
+    def IncrementItem():
+        print()
+
+    @staticmethod
+    def DecrementItem():
+        print()
+
+    @staticmethod
+    def ClearTable():
+        print()
 
 
 
@@ -81,16 +101,13 @@ class MainWindow():
 
             frame.destroy() # Destroys login input stage when valid input entered
 
-            MainWindow.InvManagement(root) # Continues into the main portion of the program
+            MainWindow.InvSetup(root) # Continues into the main portion of the program
             
         else :
             messagebox.showerror("Login Failed", "Invalid userID or password")
             frame.destroy()
             MainWindow.Login(root)
 
-    @staticmethod
-    def AddItem():
-        print("Hello World")
 
 
     @staticmethod
@@ -107,7 +124,7 @@ class MainWindow():
     
 
     @staticmethod
-    def InvManagement(root):
+    def InvSetup(root):
             bottomFrame = tk.Frame(root, bg = "white")
             bottomFrame.place(relx=0, rely=1/6, relwidth=1, relheight=5/6) # Formats the frame to take up 5/6 of the root window
 
@@ -115,6 +132,16 @@ class MainWindow():
             
             # EXAMPLE TO INSERT ROW
             table.insert("", "end", values=["id1", "item1", "1"])
+
+
+    @staticmethod
+    def NavBarSetup(root):
+
+            topFrame = tk.Frame(root, bg = "gray")
+            topFrame.place(relx=0, rely=5/6, relwidth=1, relheight=1/6)
+            
+            addButton    = tk.Button(topFrame, text="ADD", command=Operations.AddItem())
+            removeButton = tk.Button(topFrame, text="REMOVE", command=Operations.RemoveItem())
 
             
     @staticmethod        
