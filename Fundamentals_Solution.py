@@ -90,7 +90,7 @@ class FileManagement:
 
 
     @staticmethod
-    def LoadItems():
+    def LoadItems(): # Returns all items stored in csv file
         CSVChecker.ItemsCSVReady()
 
         items = []
@@ -136,7 +136,7 @@ class Operations():
         addFrame = tk.Frame(Operations.root)
         addFrame.place(relx=0, rely= 1/6, relwidth=1, relheight=5/6)
 
-        tk.Label(addFrame, text="ItemID : ").pack(pady=5)
+        tk.Label(addFrame, text="ItemID : ").pack(pady=5) # Creates input label for each field needed to be inputted
         itemIdin = tk.Entry(addFrame)
         itemIdin.pack()
 
@@ -163,7 +163,7 @@ class Operations():
                 "itemId"  : itemId,
                 "itemName": itemName,
                 "quantity": quantity
-            })
+            }) # Adds item to csv, passing in each of the fields
 
             Operations.table.insert("", "end", values=[itemId, itemName, quantity])
             addFrame.destroy()
