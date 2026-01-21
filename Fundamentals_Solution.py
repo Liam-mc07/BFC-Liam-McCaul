@@ -71,6 +71,25 @@ class FileManagement:
             writer.writerows(rows)
 
     @staticmethod
+    def AlterCSVQuantity(itemId, quantity):
+
+        CSVChecker.ItemsCSVReady()
+
+        rows = []
+        with open(CSV_PATH, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row["itemId"] == itemId: # Only alters item which has chosen id
+                    row["quantity"] = quantity
+                rows.append[row]
+
+        with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=ICOLUMNS)
+            writer.writeheader()
+            writer.writerows(rows)
+
+
+    @staticmethod
     def LoadItems():
         CSVChecker.ItemsCSVReady()
 
@@ -178,7 +197,44 @@ class Operations():
         
         table = Operations.table
 
-        
+        selectedItem = table.selection()
+        if not selectedItem:
+            messagebox.showerror("Error", "No item selected to remove")
+            return
+        row  = selectedItem[0]
+        item = table.item(row, "values")
+
+        itemId   = item[0]
+        itemName = item[1]
+        quantity = item[2]
+
+        alterFrame = tk.Toplevel(Operations.root)
+        alterFrame.title("Alter Quantity")
+
+        tk.Label(alterFrame, text=f"Item : {itemName}").pack(pady=5)
+        tk.Label(alterFrame, text="New Quantity : ").pack()
+
+        quantityin = tk.Entry(alterFrame)
+        quantityin.insert(0, quantity)
+        quantityin.pack()
+
+        def Confirm():
+            newQuantity = quantityin.get()
+            if not newQuantity.isdigit() or int(newQuantity) <= 0:
+                messagebox.showerror("Error", "Enter a valid integer input")
+                return
+            if int(newQuantity) < 5:
+                messagebox.showerror("Warning", "Item stock low, order more soon.")
+            
+            table.item(item, values=[itemId, itemName, newQuantity])
+
+            FileManagement.AlterCSVQuantity(itemId, newQuantity)
+
+            alterFrame.destroy()
+
+        tk.Button(alterFrame, text="Enter", command=Confirm).pack(pady=10)
+
+
 
 
     @staticmethod
