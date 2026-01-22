@@ -97,7 +97,7 @@ class FileManagement:
             for row in reader:
                 if row["itemId"] == itemId: # Only alters item which has chosen id
                     row["quantity"] = quantity
-                rows.append[row]
+                rows.append(row)
 
         with open(CSV_PATH, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=ICOLUMNS)
@@ -267,6 +267,7 @@ class Operations():
 
         alterFrame = tk.Toplevel(Operations.root)
         alterFrame.title("Alter Quantity")
+        alterFrame.geometry("300x300")
 
         tk.Label(alterFrame, text=f"Item : {itemName}").pack(pady=5)
         tk.Label(alterFrame, text="New Quantity : ").pack()
@@ -283,7 +284,7 @@ class Operations():
             if int(newQuantity) < 5:
                 messagebox.showerror("Warning", "Item stock low, order more soon.")
             
-            table.item(item, values=[itemId, itemName, newQuantity])
+            table.item(row, values=[itemId, itemName, newQuantity])
 
             FileManagement.AlterCSVQuantity(itemId, newQuantity)
 
