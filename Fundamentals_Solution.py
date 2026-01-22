@@ -13,12 +13,14 @@ import tkinter as tk # Library to create GUI
 from tkinter import messagebox # Import needed to output approved/error window
 from tkinter import ttk # Import needed to use data tree to display data
 
-CSV_PATH = "improved_inventory.csv"
-LOG_PATH = "userlog.csv"
-ICOLUMNS = ["itemId", "itemName", "quantity"]
-LCOLUMNS = ["Username", "Date accessed"]
+CSV_PATH  = "improved_inventory.csv"
+LOG_PATH  = "userlog.csv"
+USER_PATH = "usernames.csv"
+ICOLUMNS  = ["itemId", "itemName", "quantity"]
+LCOLUMNS  = ["Username", "Date accessed"]
+UCOLUMNS  = ["Username", "Password"]
 
-
+################################################################################################################
 
 class FileManagement:
 
@@ -33,6 +35,20 @@ class FileManagement:
                 "Date accessed" : datetime.now()
                 }
             writer.writerow(row)
+
+    @staticmethod
+    def AddUsername(username, pw):
+
+        CSVChecker.UsersCSVReady()
+
+        with open(USER_PATH, "a", newline ="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames = UCOLUMNS)
+            row = {
+                "Username" : username,
+                "Password" : pw
+                }
+            writer.writerow(row)
+
 
     @staticmethod
     def AddItemToCSV(row):
@@ -87,10 +103,31 @@ class FileManagement:
             writer = csv.DictWriter(f, fieldnames=ICOLUMNS)
             writer.writeheader()
             writer.writerows(rows)
+    
+    @staticmethod
+    def IsInPwCSV(username, pw):
+        
+        users = FileManagement.LoadUsernames_Pw()
+        isCorrect = False
+        isPresent = False
+
+        for row in users:
+            if row["Username"] == username:
+                isPresent = True
+                return row["Password"] == pw   
+        FileManagement.AddUsername(username, pw)
+        return True
+            
+
+            
+        
+
+
 
 
     @staticmethod
     def LoadItems(): # Returns all items stored in csv file
+
         CSVChecker.ItemsCSVReady()
 
         items = []
@@ -100,11 +137,31 @@ class FileManagement:
                 items.append(row)
         return items
     
+    @staticmethod
+    def LoadUsernames_Pw():
+
+        CSVChecker.UsersCSVReady()
+
+        users = []
+        with open(USER_PATH, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                users.append(row)
+        return users
     
-        
+    
+######################################################################################################################
 
 
 class CSVChecker():
+
+    @staticmethod
+    def UsersCSVReady():
+        if not os.path.exists(USER_PATH) or os.path.getsize(USER_PATH) == 0 :
+            with open(USER_PATH, "w", newline = "", encoding = "utf-8") as f:
+                csv.writer(f).writerow(UCOLUMNS)
+
+
 
     @staticmethod
     def LogCSVReady():
@@ -120,7 +177,7 @@ class CSVChecker():
             with open(CSV_PATH, "w", newline = "", encoding = "utf-8") as f:
                 csv.writer(f).writerow(ICOLUMNS)
     
-    
+##############################################################################################################
 
 class Operations():
     
@@ -265,6 +322,7 @@ class Operations():
                     row["quantity"]
                 ])
 
+################################################################################################################
 
 
 class MainWindow():
@@ -284,7 +342,17 @@ class MainWindow():
 
             Operations.InvSetup(root) # Sets up main body of the program
             MainWindow.NavBarSetup(root) # Creates the navigation bar
-            
+        
+        elif FileManagement.IsInPwCSV(userId.lower(), password): # Checks if username and pw are correct or if new, creates new account
+            messagebox.showinfo("Login Successful", "Access approved")
+            CSVChecker.LogCSVReady()
+            FileManagement.AddUserLog(username=userId)
+
+            frame.destroy()
+
+            Operations.InvSetup(root) # Sets up main body of the program
+            MainWindow.NavBarSetup(root) # Creates the navigation bar
+
         else :
             messagebox.showerror("Login Failed", "Invalid userID or password")
             frame.destroy()
@@ -323,7 +391,8 @@ class MainWindow():
             quantityButton.pack(side="left", padx=10, pady=10)
             
 
-            
+
+
     @staticmethod        
     def Login(root):
         
